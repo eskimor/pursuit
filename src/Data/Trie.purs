@@ -26,11 +26,14 @@ toArray = go ""
 empty :: forall a. Trie a
 empty = Trie Nothing M.empty
 
-insert :: forall a. String -> a -> Trie a -> Trie a
-insert s a = go 0
+insertWith :: forall a. (Maybe a -> a) -> String -> Trie a -> Trie a
+insertWith f s = go 0
   where
-  go i (Trie _  m) | i >= S.length s = Trie (Just a) m
+  go i (Trie ma m) | i >= S.length s = Trie (Just (f ma)) m
   go i (Trie a1 m) = Trie a1 (M.alter (Just <<< go (i + 1) <<< fromMaybe empty) (S.charAt i s) m)
+
+insert :: forall a. String -> a -> Trie a -> Trie a
+insert s a = insertWith (const a) s
 
 lookupAll :: forall a. String -> Trie a -> Maybe (Trie a)
 lookupAll s = go 0
